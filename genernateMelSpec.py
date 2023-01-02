@@ -13,7 +13,7 @@ during_time = 20
 
 
 def main():
-    music_path = '../../../LibriSpeech-SI/train'
+    music_path = '../../../LibriSpeech-SI/train_random_noise'
     melSpecImag_path = '../../../data_set/' + data_source
     melSpecImag_path = os.path.join(melSpecImag_path, 'data_all')
     config_value = data_source.split('_')
@@ -27,7 +27,7 @@ def main():
         os.makedirs(melSpecImag_path)
 
     kind_names = os.listdir(music_path)
-    for i in range(0, len(kind_names)):
+    for i in range(2, len(kind_names)):
         kind_name = kind_names[i]
         kind_path = os.path.join(music_path, kind_name)
         elements = os.listdir(kind_path)
@@ -43,15 +43,14 @@ def main():
             y, sr = librosa.load(music_file)
             fs = sr
 
-            # data process  to check
-            pre_len = len(y)
-            if pre_len < 20 * sr:
-                cicle_time = 20 * sr / pre_len + 1
-                y_temp = y
-                for i in range(int(cicle_time)):
-                    y_temp = np.concatenate([y,y_temp])
-                y = y_temp
-            y = y[0:20 * sr]
+            # # data process  to check
+            # pre_len = len(y)
+            # if pre_len < 20 * sr:
+            #     cicle_time = 20 * sr / pre_len + 1
+            #     y_temp = y
+            #     for i in range(cicle_time):
+            #         y_temp = [y_temp, y]
+            # y = y[0:20 * sr - 1]
 
             melspec = librosa.feature.melspectrogram(y, sr=fs, n_fft=n_fft, hop_length=hop_length,
                                                      n_mels=n_mels)  # (128,856)

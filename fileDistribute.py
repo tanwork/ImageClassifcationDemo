@@ -12,7 +12,7 @@ def main():
     split_names = ['train', 'val']
 
     data_root = os.path.abspath(os.path.join(os.getcwd(), "../../../data_set"))  # get data root path
-    image_path = os.path.join(data_root, data_source)  # flower data set path
+    image_path = os.path.join(data_root, data_source, 'gray_image')  # flower data set path
 
     assert os.path.exists(image_path), "{} path does not exist.".format(image_path)
     image_path1 = os.path.join(image_path, "data_all/")

@@ -14,12 +14,12 @@ from config import data_source, weights_file_name
 
 
 def main():
+    set_name = 'test-noisy'
     # 读取有多少kind
     data_root = os.path.abspath(os.path.join(os.getcwd(), "../../../data_set"))  # get data root path
     file_str = os.path.join(data_root, data_source)  # flower data set path
-    kind_file = file_str + "/test/"
-    kind_names = os.listdir(kind_file)
-    kind_len = len(kind_names)
+    kind_file = file_str + "/" + set_name
+    list_names = os.listdir(kind_file)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -34,7 +34,8 @@ def main():
     assert os.path.exists(json_path), "file: '{}' dose not exist.".format(json_path)
     json_file = open(json_path, "r")
     class_indict = json.load(json_file)
-
+    kind_len = len(class_indict)
+    print(kind_len)
     # create model
     model = resnet34(num_classes=kind_len).to(device)
 
@@ -47,18 +48,15 @@ def main():
     # prediction
     model.eval()
 
-    for str_kind in kind_names:
-        imag_file_path = kind_file + str_kind
-        datanames = os.listdir(imag_file_path)
-        dataname = list(datanames)
-        data_len = len(dataname)
+    save_recoder_txt = os.path.join(data_root, data_source, set_name+"_"+'result.txt')
 
-        # load image
-        cnt = 0
-        for i in range(data_len):
-            img_path = imag_file_path + "/" + dataname[i]
+    with open(save_recoder_txt, 'w', encoding='utf-8') as f:  # 使用with open()新建对象f
+        for list_name in list_names:
+            imag_file_path = os.path.join(kind_file, list_name)
+            img_path = imag_file_path
             assert os.path.exists(img_path), "file: '{}' dose not exist.".format(img_path)
-            img = Image.open(img_path)
+            img=Image.open(img_path).convert('RGB')
+            print(img_path)
 
             # [N, C, H, W]
             img = data_transform(img)
@@ -67,18 +65,11 @@ def main():
 
             with torch.no_grad():
                 # predict class
-                output = torch.squeeze(model(img.to(device))).cpu()
-                predict = torch.softmax(output, dim=0)
-                predict_cla = torch.argmax(predict).numpy()
+                output = model(img.to(device))
+                predict_y = torch.max(output, dim=1)[1]
 
-                print_res = "file:{:10}   class: {}   prob: {:.3}".format(dataname[i], class_indict[str(predict_cla)],
-                                                                          predict[predict_cla].numpy())
-
-                if str_kind == class_indict[str(predict_cla)]:
-                    cnt += 1
-
-        # print(cnt)
-        print("kind_name:{} acc={}/{}={:.3}".format(str_kind, cnt, data_len, cnt / data_len))
+                process_recoder = list_name.split('.')[0] + '.flac' + ' ' + class_indict[str(int(predict_y))]
+                f.write(process_recoder + '\n')
 
 
 if __name__ == '__main__':

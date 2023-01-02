@@ -29,7 +29,7 @@ def main():
     # 修改数据集的路径
     data_root = os.path.abspath(os.path.join(os.getcwd(), "../../../data_set"))  # get data root path
     image_path = os.path.join(data_root, data_source)  # flower data set path
-    image_path1 = os.path.join(image_path, 'data_all')
+    image_path1 = os.path.join(image_path, 'gray_image','data_all')
     kind_names = os.listdir(image_path1)
     kind_len = len(kind_names)
 
